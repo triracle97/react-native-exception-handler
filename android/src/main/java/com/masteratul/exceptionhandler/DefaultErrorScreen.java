@@ -15,7 +15,6 @@ import android.widget.TextView;
 public class DefaultErrorScreen extends Activity {
     private static String TAG = "RN_ERROR_HANDLER";
     private Button quitButton;
-    private Button relaunchButton;
     private Button showDetailsButton;
     private TextView stackTraceView;
 
@@ -31,7 +30,6 @@ public class DefaultErrorScreen extends Activity {
         }
         setContentView(R.layout.default_error_screen);
         quitButton = (Button) findViewById(R.id.eh_quit_button);
-        relaunchButton = (Button) findViewById(R.id.eh_restart_button);
         showDetailsButton = (Button) findViewById(R.id.eh_show_details_button);
         stackTraceView = (TextView) findViewById(R.id.eh_stack_trace_text_view);
         stackTraceView.setText(stackTraceString);
@@ -47,13 +45,6 @@ public class DefaultErrorScreen extends Activity {
                     stackTraceView.setVisibility(View.VISIBLE);
                     showDetailsButton.setText("HIDE DETAILS");
                 }
-            }
-        });
-
-        relaunchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                doRestart(getApplicationContext());
             }
         });
 

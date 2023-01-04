@@ -2,7 +2,9 @@
 package com.masteratul.exceptionhandler;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.facebook.react.bridge.Callback;
@@ -38,6 +40,14 @@ public class ReactNativeExceptionHandlerModule extends ReactContextBaseJavaModul
 
       callbackHolder = customHandler;
       originalHandler = Thread.getDefaultUncaughtExceptionHandler();
+      activity = getCurrentActivity();
+
+      SharedPreferences sharedPreferences = activity.getSharedPreferences("error", Context.MODE_PRIVATE);
+      String stackTraceString = sharedPreferences.getString("nativeError", null);
+      if (stackTraceString != null) {
+          callbackHolder.invoke(stackTraceString);
+          sharedPreferences.edit().remove("nativeError").commit();
+      }
 
       Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 
@@ -45,12 +55,14 @@ public class ReactNativeExceptionHandlerModule extends ReactContextBaseJavaModul
           public void uncaughtException(Thread thread, Throwable throwable) {
 
           String stackTraceString = Log.getStackTraceString(throwable);
-          callbackHolder.invoke(stackTraceString);
 
           if (nativeExceptionHandler != null) {
               nativeExceptionHandler.handleNativeException(thread, throwable, originalHandler);
           } else {
-              activity = getCurrentActivity();
+              SharedPreferences sharedPreferences = activity.getSharedPreferences("error", Context.MODE_PRIVATE);
+              SharedPreferences.Editor editor = sharedPreferences.edit();
+              editor.putString("nativeError", stackTraceString);
+              editor.apply();
 
               Intent i = new Intent();
               i.setClass(activity, errorIntentTargetClass);
