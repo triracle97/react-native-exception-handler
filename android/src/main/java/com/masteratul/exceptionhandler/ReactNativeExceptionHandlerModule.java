@@ -40,9 +40,8 @@ public class ReactNativeExceptionHandlerModule extends ReactContextBaseJavaModul
 
       callbackHolder = customHandler;
       originalHandler = Thread.getDefaultUncaughtExceptionHandler();
-      activity = getCurrentActivity();
 
-      SharedPreferences sharedPreferences = activity.getSharedPreferences("error", Context.MODE_PRIVATE);
+      SharedPreferences sharedPreferences = reactContext.getSharedPreferences("error", Context.MODE_PRIVATE);
       String stackTraceString = sharedPreferences.getString("nativeError", null);
       if (stackTraceString != null) {
           callbackHolder.invoke(stackTraceString);
@@ -59,7 +58,8 @@ public class ReactNativeExceptionHandlerModule extends ReactContextBaseJavaModul
           if (nativeExceptionHandler != null) {
               nativeExceptionHandler.handleNativeException(thread, throwable, originalHandler);
           } else {
-              SharedPreferences sharedPreferences = activity.getSharedPreferences("error", Context.MODE_PRIVATE);
+              activity = getCurrentActivity();
+              SharedPreferences sharedPreferences = reactContext.getSharedPreferences("error", Context.MODE_PRIVATE);
               SharedPreferences.Editor editor = sharedPreferences.edit();
               editor.putString("nativeError", stackTraceString);
               editor.apply();
